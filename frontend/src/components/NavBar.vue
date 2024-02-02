@@ -13,7 +13,17 @@
                             </RouterLink>
 
                             <!-- Add Links Below -->
-                                                                         
+                            <RouterLink class="route" :to="{ name: 'Control' }" >
+                                <VBtn class="text-subtitle-2"   density="compact"  color="primary" :variant="(route.name == 'Control')? 'tonal':'text'">Control</VBtn>
+                            </RouterLink>  
+                            
+                            <RouterLink class="route" :to="{ name: 'Live' }" >
+                                <VBtn class="text-subtitle-2"   density="compact"  color="primary" :variant="(route.name == 'Live')? 'tonal':'text'">Live</VBtn>
+                            </RouterLink> 
+
+                            <RouterLink class="route" :to="{ name: 'Analysis' }" >
+                                <VBtn class="text-subtitle-2"   density="compact"  color="primary" :variant="(route.name == 'Analysis')? 'tonal':'text'">Analysis</VBtn>
+                            </RouterLink> 
 
                         </VCol>
                         <VCol cols="1" align="right">
@@ -29,9 +39,9 @@
 
   
   <script setup>
-    import { useRoute,useRouter } from "vue-router";
-    import { useTheme } from 'vuetify';  
-    import { ref ,watch ,onMounted ,onBeforeMount } from 'vue';
+    import { onBeforeMount, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from "vue-router";
+import { useTheme } from 'vuetify';
 
 
   

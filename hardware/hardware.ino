@@ -43,14 +43,14 @@
 
 
 // MQTT CLIENT CONFIG  
-static const char* pubtopic      = "620012345";                    // Add your ID number here
-static const char* subtopic[]    = {"620012345_sub","/elet2415"};  // Array of Topics(Strings) to subscribe to
-static const char* mqtt_server   = "local";         // Broker IP address or Domain name as a String 
+static const char* pubtopic      = "620154033";                    // Add your ID number here
+static const char* subtopic[]    = {"620154033_sub","/elet2415"};  // Array of Topics(Strings) to subscribe to
+static const char* mqtt_server   = "www.yanacreations.com";         // Broker IP address or Domain name as a String 
 static uint16_t mqtt_port        = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid       = "YOUR_SSID";     // Add your Wi-Fi ssid
-const char* password   = "YOUR_PASSWORD"; // Add your Wi-Fi password 
+const char* ssid       = "MonaConnect";     // Add your Wi-Fi ssid
+const char* password   = ""; // Add your Wi-Fi password 
 
 
 
@@ -128,7 +128,9 @@ void vButtonCheck( void * pvParameters )  {
     for( ;; ) {
         // Add code here to check if a button(S) is pressed
         // then execute appropriate function if a button is pressed  
-
+        if(digitalRead(BTN_A) == LOW){
+          convert_Celsius_to_fahrenheit(double c);
+        }
         vTaskDelay(200 / portTICK_PERIOD_MS);  
     }
 }
@@ -152,15 +154,21 @@ void vUpdate( void * pvParameters )  {
               // ##Publish update according to ‘{"id": "student_id", "timestamp": 1702212234, "temperature": 30, "humidity":90, "heatindex": 30}’
 
               // 1. Create JSon object
-              
+              StaticJsonDocument<1000> doc;
               // 2. Create message buffer/array to store serialized JSON object
-              
+              char message[1100]  = {0};
               // 3. Add key:value pairs to JSon object based on above schema
-
+              doc["id"]                 = "620154033";
+              doc["timestamp"]          = getTimeStamp();
+              doc["temperature"]        = t;
+              doc["humidity"]           = h;
+              doc["heatindex"]          = calcHeatIndex();
               // 4. Seralize / Covert JSon object to JSon string and store in message array
-               
-              // 5. Publish message to a topic sobscribed to by both backend and frontend                
-
+              serializeJson(doc, message); 
+              // 5. Publish message to a topic subscribed to by both backend and frontend                
+              if(mqtt.connected() ){
+                publish(pubtopic, message);
+              }
           }
 
           
@@ -239,16 +247,18 @@ bool publish(const char *topic, const char *payload){
 //***** Complete the util functions below ******
 
 double convert_Celsius_to_fahrenheit(double c){    
-    // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS     
+    // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS
+  double resultf = (((c * 9.0) / 5.0) + 32.0);
 }
 
 double convert_fahrenheit_to_Celsius(double f){    
-    // CONVERTS INPUT FROM °F TO °C. RETURN RESULT    
+    // CONVERTS INPUT FROM °F TO °C. RETURN RESULT 
+  double resultc = (((f - 32.0) * 5.0) / 9.0);   
 }
 
 double calcHeatIndex(double Temp, double Humid){
     // CALCULATE AND RETURN HEAT INDEX USING EQUATION FOUND AT https://byjus.com/heat-index-formula/#:~:text=The%20heat%20index%20formula%20is,an%20implied%20humidity%20of%2020%25
-  
+  return double hI = -42.379 + (-2.04901523*Temp) + (-10.14333127*Humid) + (-0.22475541*Temp*Humid) + c5 Temp*Humid + c6 Humid + c7 Temp*Humid + c8 TR2 + c9 T2R2;
 }
  
 
