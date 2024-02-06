@@ -7,7 +7,8 @@
 #include <rom/rtc.h> 
 #include <math.h>  // https://www.tutorialspoint.com/c_standard_library/math_h.htm 
 #include <ctype.h>
-
+#include <FastLED.h>
+#include <DHT.h>
 // ADD YOUR IMPORTS HERE
 
 
@@ -33,14 +34,13 @@
 #endif
 
  
-
 // DEFINE VARIABLES
 #define ARDUINOJSON_USE_DOUBLE      1 
+#define NUM_LEDS 7
 
 // DEFINE THE CONTROL PINS FOR THE DHT22 
-
-
-
+#define DHTPIN 26
+#define DHTTYPE DHT22
 
 // MQTT CLIENT CONFIG  
 static const char* pubtopic      = "620154033";                    // Add your ID number here
@@ -51,8 +51,6 @@ static uint16_t mqtt_port        = 1883;
 // WIFI CREDENTIALS
 const char* ssid       = "MonaConnect";     // Add your Wi-Fi ssid
 const char* password   = ""; // Add your Wi-Fi password 
-
-
 
 
 // TASK HANDLES 
@@ -78,10 +76,9 @@ bool isNumber(double number);
 double convert_Celsius_to_fahrenheit(double c);
 double convert_fahrenheit_to_Celsius(double f);
 double calcHeatIndex(double Temp, double Humid);
-
-
+DHT dht(DHTPIN, DHTTYPE);
+CRGB leds[NUM_LEDS];
 /* Init class Instances for the DHT22 etcc */
- 
   
 
 //############### IMPORT HEADER FILES ##################
@@ -97,12 +94,13 @@ double calcHeatIndex(double Temp, double Humid);
 
 
 void setup() {
-  Serial.begin(115200);  // INIT SERIAL  
+  Serial.begin(115200);  // INIT SERIAL   
 
   // INITIALIZE ALL SENSORS AND DEVICES
   
   /* Add all other necessary sensor Initializations and Configurations here */
-
+  dht.begin();
+  FastLED.addLeds<NEOPIXEL, 26>(leds, NUM_LEDS);
 
   initialize();     // INIT WIFI, MQTT & NTP 
   // vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS INT THIS LAB, THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
@@ -127,10 +125,7 @@ void vButtonCheck( void * pvParameters )  {
       
     for( ;; ) {
         // Add code here to check if a button(S) is pressed
-        // then execute appropriate function if a button is pressed  
-        if(digitalRead(BTN_A) == LOW){
-          convert_Celsius_to_fahrenheit(double c);
-        }
+        // then execute appropriate function if a button is pressed 
         vTaskDelay(200 / portTICK_PERIOD_MS);  
     }
 }
@@ -144,11 +139,10 @@ void vUpdate( void * pvParameters )  {
           // #######################################################
    
           // 1. Read Humidity and save in variable below
-          double h = 0;
+          double h = dht.readHumidity();
            
-          // 2. Read temperature as Celsius   and save in variable below
-          double t = 0;    
- 
+          // 2. Read temperature as Celsius   and save in variable below 
+          double t = dht.readTemperature();
 
           if(isNumber(t)){
               // ##Publish update according to ‘{"id": "student_id", "timestamp": 1702212234, "temperature": 30, "humidity":90, "heatindex": 30}’
@@ -162,7 +156,7 @@ void vUpdate( void * pvParameters )  {
               doc["timestamp"]          = getTimeStamp();
               doc["temperature"]        = t;
               doc["humidity"]           = h;
-              doc["heatindex"]          = calcHeatIndex();
+              doc["heatindex"]          = calcHeatIndex(t,h);
               // 4. Seralize / Covert JSon object to JSon string and store in message array
               serializeJson(doc, message); 
               // 5. Publish message to a topic subscribed to by both backend and frontend                
@@ -215,18 +209,36 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   // PROCESS MESSAGE
   const char* type = doc["type"]; 
+  // ‘{"type": "controls", "brightness": 255, "leds": 7, "color": { "r": 255, "g": 255, "b": 255, "a": 1 } }’
+ 
 
   if (strcmp(type, "controls") == 0){
     // 1. EXTRACT ALL PARAMETERS: NODES, RED,GREEN, BLUE, AND BRIGHTNESS FROM JSON OBJECT
-
+    int brightness  = doc["brightness"]; 
+    int nodes       = doc["leds"];
+    int red         = doc["color"]["r"];
+    int green       = doc["color"]["g"];
+    int blue        = doc["color"]["b"];
     // 2. ITERATIVELY, TURN ON LED(s) BASED ON THE VALUE OF NODES. Ex IF NODES = 2, TURN ON 2 LED(s)
-
+    for (int i = 0; i < nodes; i++)
+    {
+      leds[i] = CRGB(red, green, blue);
+      FastLED.setBrightness(brightness);
+      FastLED.show();
+      delay(50);
+    }
     // 3. ITERATIVELY, TURN OFF ALL REMAINING LED(s).
-   
-  }
+    for(int j = 0; x < nodes; x++)
+    {
+      leds[j] = CRGB::Black;
+      FastLED.setBrightness( brightness );
+      FastLED.show();
+      delay(50);
+    }
 }
 
-bool publish(const char *topic, const char *payload){   
+bool publish(const char *topic, const char *payload)
+{   
      bool res = false;
      try{
         res = mqtt.publish(topic,payload);
@@ -246,23 +258,26 @@ bool publish(const char *topic, const char *payload){
 
 //***** Complete the util functions below ******
 
-double convert_Celsius_to_fahrenheit(double c){    
+double convert_Celsius_to_fahrenheit(double c)
+{    
     // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS
   double resultf = (((c * 9.0) / 5.0) + 32.0);
 }
 
-double convert_fahrenheit_to_Celsius(double f){    
+double convert_fahrenheit_to_Celsius(double f)
+{    
     // CONVERTS INPUT FROM °F TO °C. RETURN RESULT 
   double resultc = (((f - 32.0) * 5.0) / 9.0);   
 }
 
-double calcHeatIndex(double Temp, double Humid){
+double calcHeatIndex(double Temp, double Humid)
+{
     // CALCULATE AND RETURN HEAT INDEX USING EQUATION FOUND AT https://byjus.com/heat-index-formula/#:~:text=The%20heat%20index%20formula%20is,an%20implied%20humidity%20of%2020%25
-  return double hI = -42.379 + (-2.04901523*Temp) + (-10.14333127*Humid) + (-0.22475541*Temp*Humid) + c5 Temp*Humid + c6 Humid + c7 Temp*Humid + c8 TR2 + c9 T2R2;
+  return double hI = -42.379 + (-2.04901523*convert_Celsius_to_fahrenheit(Temp)) + (-10.14333127*Humid) + (-0.22475541*convert_Celsius_to_fahrenheit(Temp)*Humid) + (-0.00683783*pow(convert_Celsius_to_fahrenheit(Temp),2))  + (-0.05481717*pow(Humid,2)) + (-0.00122874*pow(convert_Celsius_to_fahrenheit(Temp),2)*Humid)  + (0.00085282*convert_Celsius_to_fahrenheit(Temp)*pow(Humid,2)) + (-0.00000199*pow(convert_Celsius_to_fahrenheit(Temp),2)*pow(Humid,2));
 }
- 
-
-bool isNumber(double number){       
+//HI= c1+c2T+c3R+c4TR+c5T2+c6R2+c7T2R+c8TR2+c9T2R2
+bool isNumber(double number)
+{       
         char item[20];
         snprintf(item, sizeof(item), "%f\n", number);
         if( isdigit(item[0]) )

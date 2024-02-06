@@ -18,7 +18,7 @@
                     </v-card>
                 </v-sheet>
 
-                <v-sheet class="mb-1 pa-2" justify="center" align="center" border color="surface" elevation="0" style="max-width: 800px; width: 100%;">
+                <v-sheet class="mb-1 pa-2 border" justify="center" align="center" color="surface" elevation="0" style="max-width: 800px; width: 100%;">
                     <v-progress-circular rotate="0" size="200" width="15" :model-value="led.nodes *15" :color="indicatorColor">
                         <span class="text-onSurface font-weight-bold">{{ led.nodes }} LED(s)</span>
                     </v-progress-circular>
