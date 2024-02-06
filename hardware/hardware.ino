@@ -11,8 +11,6 @@
 #include <DHT.h>
 // ADD YOUR IMPORTS HERE
 
-
-
 #ifndef _WIFI_H 
 #include <WiFi.h>
 #endif
@@ -228,29 +226,29 @@ void callback(char* topic, byte* payload, unsigned int length) {
       delay(50);
     }
     // 3. ITERATIVELY, TURN OFF ALL REMAINING LED(s).
-    for(int j = 0; x < nodes; x++)
+    for(int j = 0; j < nodes; j++)
     {
       leds[j] = CRGB::Black;
       FastLED.setBrightness( brightness );
       FastLED.show();
       delay(50);
     }
+  }
 }
 
-bool publish(const char *topic, const char *payload)
-{   
-     bool res = false;
-     try{
-        res = mqtt.publish(topic,payload);
-        // Serial.printf("\nres : %d\n",res);
-        if(!res){
-          res = false;
-          throw false;
-        }
-     }
-     catch(...){
+bool publish(const char *topic, const char *payload){   
+    bool res = false;
+    try{
+      res = mqtt.publish(topic,payload);
+      // Serial.printf("\nres : %d\n",res);
+      if(!res){
+        res = false;
+        throw false;
+      }
+    }
+    catch(...){
       Serial.printf("\nError (%d) >> Unable to publish message\n", res);
-     }
+    }
   return res;
 }
 
@@ -258,26 +256,23 @@ bool publish(const char *topic, const char *payload)
 
 //***** Complete the util functions below ******
 
-double convert_Celsius_to_fahrenheit(double c)
-{    
-    // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS
+double convert_Celsius_to_fahrenheit(double c){    
+  // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS
   double resultf = (((c * 9.0) / 5.0) + 32.0);
 }
 
-double convert_fahrenheit_to_Celsius(double f)
-{    
+double convert_fahrenheit_to_Celsius(double f){    
     // CONVERTS INPUT FROM °F TO °C. RETURN RESULT 
   double resultc = (((f - 32.0) * 5.0) / 9.0);   
 }
 
-double calcHeatIndex(double Temp, double Humid)
-{
+double calcHeatIndex(double Temp, double Humid){
     // CALCULATE AND RETURN HEAT INDEX USING EQUATION FOUND AT https://byjus.com/heat-index-formula/#:~:text=The%20heat%20index%20formula%20is,an%20implied%20humidity%20of%2020%25
-  return double hI = -42.379 + (-2.04901523*convert_Celsius_to_fahrenheit(Temp)) + (-10.14333127*Humid) + (-0.22475541*convert_Celsius_to_fahrenheit(Temp)*Humid) + (-0.00683783*pow(convert_Celsius_to_fahrenheit(Temp),2))  + (-0.05481717*pow(Humid,2)) + (-0.00122874*pow(convert_Celsius_to_fahrenheit(Temp),2)*Humid)  + (0.00085282*convert_Celsius_to_fahrenheit(Temp)*pow(Humid,2)) + (-0.00000199*pow(convert_Celsius_to_fahrenheit(Temp),2)*pow(Humid,2));
+  double hI = -42.379 + (-2.04901523*convert_Celsius_to_fahrenheit(Temp)) + (-10.14333127*Humid) + (-0.22475541*convert_Celsius_to_fahrenheit(Temp)*Humid) + (-0.00683783*pow(convert_Celsius_to_fahrenheit(Temp),2))  + (-0.05481717*pow(Humid,2)) + (-0.00122874*pow(convert_Celsius_to_fahrenheit(Temp),2)*Humid)  + (0.00085282*convert_Celsius_to_fahrenheit(Temp)*pow(Humid,2)) + (-0.00000199*pow(convert_Celsius_to_fahrenheit(Temp),2)*pow(Humid,2));
+  return hI;
 }
 //HI= c1+c2T+c3R+c4TR+c5T2+c6R2+c7T2R+c8TR2+c9T2R2
-bool isNumber(double number)
-{       
+bool isNumber(double number){       
         char item[20];
         snprintf(item, sizeof(item), "%f\n", number);
         if( isdigit(item[0]) )
