@@ -7,9 +7,10 @@
 #include <rom/rtc.h> 
 #include <math.h>  // https://www.tutorialspoint.com/c_standard_library/math_h.htm 
 #include <ctype.h>
-#include <FastLED.h>
-#include <DHT.h>
+
 // ADD YOUR IMPORTS HERE
+#include <FastLED.h>
+#include "DHT.h"
 
 #ifndef _WIFI_H 
 #include <WiFi.h>
@@ -34,10 +35,12 @@
  
 // DEFINE VARIABLES
 #define ARDUINOJSON_USE_DOUBLE      1 
+
 #define NUM_LEDS 7
+#define LED_PIN 26
 
 // DEFINE THE CONTROL PINS FOR THE DHT22 
-#define DHTPIN 26
+#define DHTPIN 22
 #define DHTTYPE DHT22
 
 // MQTT CLIENT CONFIG  
@@ -74,10 +77,11 @@ bool isNumber(double number);
 double convert_Celsius_to_fahrenheit(double c);
 double convert_fahrenheit_to_Celsius(double f);
 double calcHeatIndex(double Temp, double Humid);
-DHT dht(DHTPIN, DHTTYPE);
-CRGB leds[NUM_LEDS];
+
 /* Init class Instances for the DHT22 etcc */
-  
+DHT dht(DHTPIN, DHTTYPE);  
+
+CRGB leds[NUM_LEDS];
 
 //############### IMPORT HEADER FILES ##################
 #ifndef NTP_H
@@ -98,7 +102,8 @@ void setup() {
   
   /* Add all other necessary sensor Initializations and Configurations here */
   dht.begin();
-  FastLED.addLeds<NEOPIXEL, 26>(leds, NUM_LEDS);
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+  //pinMode(LED,OUTPUT);
 
   initialize();     // INIT WIFI, MQTT & NTP 
   // vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS INT THIS LAB, THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
@@ -137,10 +142,12 @@ void vUpdate( void * pvParameters )  {
           // #######################################################
    
           // 1. Read Humidity and save in variable below
-          double h = dht.readHumidity();
+          double h = 0;
+          h = dht.readHumidity();
            
           // 2. Read temperature as Celsius   and save in variable below 
-          double t = dht.readTemperature();
+          double t = 0;
+          t = dht.readTemperature();
 
           if(isNumber(t)){
               // ##Publish update according to ‘{"id": "student_id", "timestamp": 1702212234, "temperature": 30, "humidity":90, "heatindex": 30}’
@@ -148,7 +155,7 @@ void vUpdate( void * pvParameters )  {
               // 1. Create JSon object
               StaticJsonDocument<1000> doc;
               // 2. Create message buffer/array to store serialized JSON object
-              char message[1100]  = {0};
+              char message[1100]  = { 0 };
               // 3. Add key:value pairs to JSon object based on above schema
               doc["id"]                 = "620154033";
               doc["timestamp"]          = getTimeStamp();
@@ -161,10 +168,7 @@ void vUpdate( void * pvParameters )  {
               if(mqtt.connected() ){
                 publish(pubtopic, message);
               }
-          }
-
-          
-            
+          }  
         vTaskDelay(1000 / portTICK_PERIOD_MS);  
     }
 }
@@ -226,7 +230,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
       delay(50);
     }
     // 3. ITERATIVELY, TURN OFF ALL REMAINING LED(s).
-    for(int j = 0; j < nodes; j++)
+    for(int j = nodes; j < NUM_LEDS; j++)
     {
       leds[j] = CRGB::Black;
       FastLED.setBrightness( brightness );

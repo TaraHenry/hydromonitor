@@ -36,24 +36,38 @@
 /** JAVASCRIPT HERE */
 
 // IMPORTS
-import { computed, onBeforeUnmount, onMounted, reactive, watch } from "vue";
+import { useMqttStore } from "@/store/mqttStore"; // Import Mqtt Store
+import { storeToRefs } from "pinia";
+import { computed, onBeforeUnmount, onMounted, reactive, watch, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
  
  
 // VARIABLES
 const router      = useRouter();
 const route       = useRoute();  
+
+const Mqtt        = useMqttStore();
+const { payload, payloadTopic } = storeToRefs(Mqtt);
+
 const led         = reactive({"brightness":255, "nodes":1, "color":{r: 255, g: 0, b: 255, a: 1}})
 let timer, ID     = 1000;
 
 // FUNCTIONS
 onMounted(()=>{
     // THIS FUNCTION IS CALLED AFTER THIS COMPONENT HAS BEEN MOUNTED
-});
+    Mqtt.connect(); // Connect to Broker located on the backend
 
+    setTimeout( ()=>{
+        //Subscribe to each topic
+        Mqtt.subscribe("620154033");
+        Mqtt.subscribe("620154033_pub");
+    }, 3000);
+});
 
 onBeforeUnmount(()=>{
     // THIS FUNCTION IS CALLED RIGHT BEFORE THIS COMPONENT IS UNMOUNTED
+    // unsubcribe from all topics
+    Mqtt.unsubcribeAll();
 });
 
 // WATCHERS
@@ -63,13 +77,14 @@ watch(led,(controls)=>{
         const message =
         JSON.stringify({"type":"controls","brightness":controls.brightness,"leds":controls.nodes,"color": controls.color});
         Mqtt.publish("620154033_sub",message); // Publish to a topic subscribed to by the hardware
-    },1000)
+    },1000);
 })
 
 // COMPUTED PROPERTIES
 const indicatorColor = computed(()=>{
     return `rgba(${led.color.r},${led.color.g},${led.color.b},${led.color.a})`
 })
+
 </script>
 
 

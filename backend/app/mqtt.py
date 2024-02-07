@@ -35,7 +35,7 @@ class MQTT:
 
         # 3. REGISTER CALLBACK FUNCTION(S) FOR EACH TOPIC USING THE self.client.message_callback_add("topic",self.function) FUNCTION
         # WHICH TAKES A TOPIC AND THE NAME OF THE CALLBACK FUNCTION YOU HAVE CREATED FOR THIS SPECIFIC TOPIC
-        self.client.message_callback_add("620154033", self.convert)
+        self.client.message_callback_add("620154033", self.update)
         # self.client.message_callback_add("620154033_pub", self.toggle)
          
 
@@ -83,14 +83,14 @@ class MQTT:
    
 
     # 2. DEFINE CALLBACK FUNCTIONS(S) BELOW FOR EACH TOPIC(S) THE BACKEND SUBSCRIBES TO 
-    def convert(self, client, userdata, msg):
+    def update(self, client, userdata, msg):
         try:
             topic   = msg.topic
             payload = msg.payload.decode("utf-8")
             print(payload) # UNCOMMENT WHEN DEBUGGING  
             
-            climo  = loads(payload) # CONVERT FROM JSON STRING TO JSON OBJECT  
-            self.mongo.addUpdate(climo) # INSERT INTO DATABASE 
+            update  = loads(payload) # CONVERT FROM JSON STRING TO JSON OBJECT  
+            self.mongo.addUpdate(update) # INSERT INTO DATABASE 
 
         except Exception as e:
             print(f"MQTT: GDP Error: {str(e)}")
