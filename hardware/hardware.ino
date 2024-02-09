@@ -40,18 +40,20 @@
 #define LED_PIN 26
 
 // DEFINE THE CONTROL PINS FOR THE DHT22 
-#define DHTPIN 22
+#define DHTPIN 25
 #define DHTTYPE DHT22
 
 // MQTT CLIENT CONFIG  
 static const char* pubtopic      = "620154033";                    // Add your ID number here
 static const char* subtopic[]    = {"620154033_sub","/elet2415"};  // Array of Topics(Strings) to subscribe to
-static const char* mqtt_server   = "www.yanacreations.com";         // Broker IP address or Domain name as a String 
+//static const char* mqtt_server   = "www.yanacreations.com";         // Broker IP address or Domain name as a String 
+static const char* mqtt_server   = "dbs.msjrealtms.com";         // Broker IP address or Domain name as a String 
+
 static uint16_t mqtt_port        = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid       = "MonaConnect";     // Add your Wi-Fi ssid
-const char* password   = ""; // Add your Wi-Fi password 
+const char* ssid       = "CWC-2594310";     // Add your Wi-Fi ssid
+const char* password   = "tjBgxs6z6pyp";    // Add your Wi-Fi password 
 
 
 // TASK HANDLES 
@@ -102,8 +104,10 @@ void setup() {
   
   /* Add all other necessary sensor Initializations and Configurations here */
   dht.begin();
+  //pinMode(DHTPIN, INPUT);
+  //pinMode(LED_PIN, OUTPUT);
+
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-  //pinMode(LED,OUTPUT);
 
   initialize();     // INIT WIFI, MQTT & NTP 
   // vButtonCheckFunction(); // UNCOMMENT IF USING BUTTONS INT THIS LAB, THEN ADD LOGIC FOR INTERFACING WITH BUTTONS IN THE vButtonCheck FUNCTION
@@ -142,12 +146,10 @@ void vUpdate( void * pvParameters )  {
           // #######################################################
    
           // 1. Read Humidity and save in variable below
-          double h = 0;
-          h = dht.readHumidity();
+          double h = dht.readHumidity();
            
           // 2. Read temperature as Celsius   and save in variable below 
-          double t = 0;
-          t = dht.readTemperature();
+          double t = dht.readTemperature();
 
           if(isNumber(t)){
               // ##Publish update according to ‘{"id": "student_id", "timestamp": 1702212234, "temperature": 30, "humidity":90, "heatindex": 30}’
@@ -165,7 +167,7 @@ void vUpdate( void * pvParameters )  {
               // 4. Seralize / Covert JSon object to JSon string and store in message array
               serializeJson(doc, message); 
               // 5. Publish message to a topic subscribed to by both backend and frontend                
-              if(mqtt.connected() ){
+              if(mqtt.connected()){
                 publish(pubtopic, message);
               }
           }  
@@ -262,18 +264,20 @@ bool publish(const char *topic, const char *payload){
 
 double convert_Celsius_to_fahrenheit(double c){    
   // CONVERTS INPUT FROM °C TO °F. RETURN RESULTS
-  double resultf = (((c * 9.0) / 5.0) + 32.0);
+  return (c * 9.0/5.0) + 32;
 }
 
 double convert_fahrenheit_to_Celsius(double f){    
     // CONVERTS INPUT FROM °F TO °C. RETURN RESULT 
-  double resultc = (((f - 32.0) * 5.0) / 9.0);   
+  return (5.0/9.0) * (f - 32);   
 }
 
 double calcHeatIndex(double Temp, double Humid){
     // CALCULATE AND RETURN HEAT INDEX USING EQUATION FOUND AT https://byjus.com/heat-index-formula/#:~:text=The%20heat%20index%20formula%20is,an%20implied%20humidity%20of%2020%25
-  double hI = -42.379 + (-2.04901523*convert_Celsius_to_fahrenheit(Temp)) + (-10.14333127*Humid) + (-0.22475541*convert_Celsius_to_fahrenheit(Temp)*Humid) + (-0.00683783*pow(convert_Celsius_to_fahrenheit(Temp),2))  + (-0.05481717*pow(Humid,2)) + (-0.00122874*pow(convert_Celsius_to_fahrenheit(Temp),2)*Humid)  + (0.00085282*convert_Celsius_to_fahrenheit(Temp)*pow(Humid,2)) + (-0.00000199*pow(convert_Celsius_to_fahrenheit(Temp),2)*pow(Humid,2));
-  return hI;
+
+  double ft = convert_Celsius_to_fahrenheit(Temp);
+  double hI = -42.379 + (2.04901523 * ft) + (10.14333127 * Humid) + (-0.22475541 * ft * Humid) + (-0.00683783 * pow(ft, 2))  + (-0.05481717 * pow(Humid,2)) + (0.00122874 * pow(ft, 2) * Humid)  + (0.00085282 * ft * pow(Humid,2)) + (-0.00000199 * pow(ft, 2) * pow(Humid,2));
+  return convert_fahrenheit_to_Celsius(hI);
 }
 //HI= c1+c2T+c3R+c4TR+c5T2+c6R2+c7T2R+c8TR2+c9T2R2
 bool isNumber(double number){       

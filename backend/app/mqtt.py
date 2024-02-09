@@ -87,21 +87,12 @@ class MQTT:
         try:
             topic   = msg.topic
             payload = msg.payload.decode("utf-8")
-            print(payload) # UNCOMMENT WHEN DEBUGGING  
+            # print(payload) # UNCOMMENT WHEN DEBUGGING  
             
             update  = loads(payload) # CONVERT FROM JSON STRING TO JSON OBJECT  
             self.mongo.addUpdate(update) # INSERT INTO DATABASE 
 
         except Exception as e:
-            print(f"MQTT: GDP Error: {str(e)}")
-
-
-     
-
-
-
-
-
-
-
+            print(f"MQTT: Update Error: {str(e)}")
  
+
