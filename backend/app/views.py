@@ -31,7 +31,12 @@ def get_all(start,end):
    
     if request.method == "GET":
         '''Add your code here to complete this route'''
-
+        try:
+            timestamp = mongo.getAllInRange()
+            if timestamp:
+                return jsonify({"status":"found","data": timestamp})
+        except Exception as e:
+            print(f"get_timestamp error: f{str(e)}") 
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
    
@@ -44,7 +49,12 @@ def get_temperature_mmar(start,end):
    
     if request.method == "GET": 
         '''Add your code here to complete this route'''
-
+        try:
+            frequency = mongo.numberFrequency()
+            if frequency:
+                return jsonify({"status":"found","data": frequency})
+        except Exception as e:
+            print(f"get_numberFrequency error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -58,7 +68,12 @@ def get_humidity_mmar(start,end):
    
     if request.method == "GET": 
         '''Add your code here to complete this route'''
-
+        try:
+            frequency = mongo.numberFrequency()
+            if frequency:
+                return jsonify({"status":"found","data": frequency})
+        except Exception as e:
+            print(f"get_numberFrequency error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -72,7 +87,12 @@ def get_freq_distro(variable,start,end):
    
     if request.method == "GET": 
         '''Add your code here to complete this route'''         
-
+        try:
+            frequency = mongo.numberFrequency()
+            if frequency:
+                return jsonify({"status":"found","data": frequency})
+        except Exception as e:
+            print(f"get_numberFrequency error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -84,9 +104,14 @@ def get_images(filename):
    
     if request.method == "GET":
         '''Add your code here to complete this route'''
-        
+        try:
+            frequency = mongo.numberFrequency()
+            if frequency:
+                return jsonify({"status":"found","data": frequency})
+        except Exception as e:
+            print(f"get_numberFrequency error: f{str(e)}")
         # FILE DOES NOT EXIST
-        return jsonify({"status":"file not found"}), 404
+    return jsonify({"status":"file not found"}), 404
 
 
 
