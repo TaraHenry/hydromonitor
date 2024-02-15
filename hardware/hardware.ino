@@ -52,8 +52,8 @@ static const char* mqtt_server   = "dbs.msjrealtms.com";         // Broker IP ad
 static uint16_t mqtt_port        = 1883;
 
 // WIFI CREDENTIALS
-const char* ssid       = "CWC-2594310";     // Add your Wi-Fi ssid
-const char* password   = "tjBgxs6z6pyp";    // Add your Wi-Fi password 
+const char* ssid       = "MonaConnect";     // Add your Wi-Fi ssid
+const char* password   = "";    // Add your Wi-Fi password 
 
 
 // TASK HANDLES 

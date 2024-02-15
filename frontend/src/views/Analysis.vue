@@ -10,7 +10,7 @@
                     <v-text-field label="Start date" class="mr-5" type="Date" density="compact" variant="solo-inverted" flat style="max-width: 300px;" v-model="start"></v-text-field>
                     <v-text-field label="End date" type="Date" density="compact" variant="solo-inverted" flat style="max-width: 300px;" v-model="end"></v-text-field>
                     <v-spacer></v-spacer>
-                    <v-btn class="text-caption" text="Analyze" color="primary" variant="tonal" @click="updateLineCharts();updateCards();updateHistogramCharts();"></v-btn>
+                    <v-btn class="text-caption" text="Analyze" color="primary" variant="tonal" @click="updateLineCharts();updateCards();updateHistogramCharts();updateScatterCharts();"></v-btn>
                 </v-sheet>
             </v-col>
             <!-- COLUMN 2 -->
@@ -227,16 +227,16 @@ const CreateCharts = async () => {
         // subtitle: { text: 'Visualize the relationship between Temperature and Heat Index as well as revealing patterns or trends in the data'},
         yAxis: {
             title: { text: 'Frequency' , style:{color:'#000000'}},
-            labels: { format: '{value} %' }
+            labels: { format: '{value}' }
         },
         xAxis: {
-            type: 'datetime',
-            title: { text: 'Time', style:{color:'#000000'} },
+            //type: 'datetime',
+            title: { text: 'Values', style:{color:'#000000'} },
             //labels: { format: '{value} °C' }
         },
         tooltip: { 
             shared:true, 
-            pointFormat: 'Humidity: {point.x} % <br/> Temperature: {point.y} °C'
+            //pointFormat: 'Humidity: {point.x} % <br/> Temperature: {point.y} °C'
         },
         series: [
         {
@@ -244,7 +244,7 @@ const CreateCharts = async () => {
             type: 'column',
             data: [],
             turboThreshold: 0,
-            color: Highcharts.getOptions().colors[1]
+            color: Highcharts.getOptions().colors[0]
         },
         {
             name: 'Humidity',
@@ -258,7 +258,7 @@ const CreateCharts = async () => {
             type: 'column',
             data: [],
             turboThreshold: 0,
-            color: Highcharts.getOptions().colors[1]
+            color: Highcharts.getOptions().colors[2]
         } ],
     });
     // TEMPERATURE AND HEAT INDEX SCATTER CHART
@@ -346,7 +346,7 @@ const updateLineCharts = async ()=>{
         // Create arrays for each plot
         let temperature = [];
         let heatindex = [];
-        let humidity = []
+        let humidity = [];
 
         // Iterate through data variable and transform object to format recognized by highcharts
         data.forEach(row => {
@@ -364,35 +364,32 @@ const updateLineCharts = async ()=>{
     }
 }
 
-// const updateScatterCharts = async ()=>{
-//     if(!!start.value && !!end.value){
-//         // Convert output from Textfield components to 10 digit timestamps
-//         let startDate = new Date(start.value).getTime() / 1000;
-//         let endDate = new Date(end.value).getTime() / 1000;
+const updateScatterCharts = async ()=>{
+    if(!!start.value && !!end.value){
+        // Convert output from Textfield components to 10 digit timestamps
+        let startDate = new Date(start.value).getTime() / 1000;
+        let endDate = new Date(end.value).getTime() / 1000;
         
-//         // Fetch data from backend
-//         const data = await AppStore.getAllInRange(startDate,endDate);
+        // Fetch data from backend
+        const data = await AppStore.getAllInRange(startDate,endDate);
 
-//         // Create arrays for each plot
-//         let temperature = [];
-//         let heatindex = [];
-//         let humidity = []
+        // Create arrays for each plot
+        let s1 = [];
+        let s2 = [];
 
-//         // Iterate through data variable and transform object to format recognized by highcharts
-//         data.forEach(row => {
-//             temperature.push({"x": row.timestamp * 1000, "y": parseFloat(row.temperature.toFixed(2)) });
-//             heatindex.push({ "x": row.timestamp * 1000,"y": parseFloat(row.heatindex.toFixed(2)) });
-//             humidity.push({ "x": row.timestamp * 1000,"y": parseFloat(row.humidity.toFixed(2)) });
-//         });
+        // Iterate through data variable and transform object to format recognized by highcharts
+        data.forEach(row => {
+            s1.push({"x": row.temperature * 1000, "y": parseFloat(row.heatindex.toFixed(2)) });
+            s2.push({ "x": row.humidity * 1000,"y": parseFloat(row.heatindex.toFixed(2)) });
+        });
 
-//         // Add data to Temperature and Heat Index Correlation Analysis chart
-//         tempHiSChart.value.series[0].setData(temperature);
-//         tempHiSChart.value.series[1].setData(heatindex);
+        // Add data to Temperature and Heat Index Correlation Analysis chart
+        tempHiSChart.value.series[0].setData(s1);
 
-//         // Add data to Humidity and Heat Index Correlation Analysis chart
-//         humiHiSChart.value.series[0].setData(humidity);
-//     }
-// }
+        // Add data to Humidity and Heat Index Correlation Analysis chart
+        humiHiSChart.value.series[0].setData(s2);
+    }
+}
 
 const updateCards = async () => {
     // Retrieve Min, Max, Avg, Spread/Range
@@ -403,29 +400,25 @@ const updateCards = async () => {
         // 2. Fetch data from backend by calling the API functions
         const temp = await AppStore.getTemperatureMMAR(startDate,endDate);
         const humid = await AppStore.getHumidityMMAR(startDate,endDate);
-        console.log(humid)
+        //console.log(humid)
         temperature.max = temp[0].max.toFixed(1);
         //3. complete for min, avg and range
-        temperature.min = temp[1].min.toFixed(1);
-        temperature.range = temp[2].range.toFixed(1);
-        temperature.avg = temp[3].avg.toFixed(1);
+        temperature.min = temp[0].min.toFixed(1);
+        temperature.range = temp[0].range.toFixed(1);
+        temperature.avg = temp[0].avg.toFixed(1);
         //4. complete max, min, avg and range for the humidity variable
         humidity.max = humid[0].max.toFixed(1);
-        humidity.min = humid[1].min.toFixed(1);
-        humidity.range = humid[2].range.toFixed(1);
-        humidity.avg = humid[3].avg.toFixed(1);
+        humidity.min = humid[0].min.toFixed(1);
+        humidity.range = humid[0].range.toFixed(1);
+        humidity.avg = humid[0].avg.toFixed(1);
     }
 }
 
 const updateHistogramCharts = async () =>{
     // Retrieve Min, Max, Avg, Spread/Range for Column graph
+    let startDate = new Date(start.value).getTime() / 1000;
+    let endDate = new Date(end.value).getTime() / 1000;
     if(!!start.value && !!end.value){
-        // 1. Convert start and end dates collected fron TextFields to 10 digit timestamps
-        // Subsequently, create startDate and endDate variables and then save the respective timestamps in these
-        // variables
-        let startDate = new Date(start.value).getTime() / 1000;
-        let endDate = new Date(end.value).getTime() / 1000;
-
         // 2. Fetch data(temp, humid and hi) from backend by calling the getFreqDistro API functions for each
         const temp = await AppStore.getFreqDistro("temperature",startDate,endDate);
         const humid = await AppStore.getFreqDistro("humidity",startDate,endDate);
@@ -442,21 +435,21 @@ const updateHistogramCharts = async () =>{
         // previously
 
         // see example below
-        temp.forEach(row => {
+        temp.forEach((row) => {
             temperature.push({"x": row["_id"],"y": row["count"]})
         });
 
         // 5. Iterate through the humid variable, which contains humidity data fetched from the backend
         // transform the data to {"x": x_value,"y": y_value} format and then push it to the humidity array created
         // previously
-        humid.forEach(row => {
+        humid.forEach((row) => {
             humidity.push({"x": row["_id"],"y": row["count"]})
         });
 
         // 6. Iterate through the humid variable, which contains heat index data fetched from the backend
         // transform the data to {"x": x_value,"y": y_value} format and then push it to the heatindex array created
         // previously
-        hi.forEach(row => {
+        hi.forEach((row) => {
             heatindex.push({"x": row["_id"],"y": row["count"]})
         });
 
@@ -466,7 +459,7 @@ const updateHistogramCharts = async () =>{
         // 8. update series[1] for the histogram/Column chart with humidity data
         freqDistroChart.value.series[1].setData(humidity);
         // 9. update series[2] for the histogram/Column chart with heat index data
-        freqDistroChart.value.series[0].setData(heatindex);
+        freqDistroChart.value.series[2].setData(heatindex);
     }
 }
 </script>

@@ -32,9 +32,10 @@ def get_all(start,end):
     if request.method == "GET":
         '''Add your code here to complete this route'''
         try:
-            timestamp = mongo.getAllInRange()
-            if timestamp:
-                return jsonify({"status":"found","data": timestamp})
+            timestamp = mongo.getAllInRange(start, end)
+            data = list(timestamp)
+            if data:
+                return jsonify({"status":"found","data": data})
         except Exception as e:
             print(f"get_timestamp error: f{str(e)}") 
     # FILE DATA NOT EXIST
@@ -50,9 +51,10 @@ def get_temperature_mmar(start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''
         try:
-            temperature = mongo.temperatureMMAR()
-            if temperature:
-                return jsonify({"status":"found","data": temperature})
+            temperature = mongo.temperatureMMAR(start, end)
+            data = list(temperature)
+            if data:
+                return jsonify({"status":"found","data": data})
         except Exception as e:
             print(f"get_temperature error: f{str(e)}")
     # FILE DATA NOT EXIST
@@ -69,9 +71,10 @@ def get_humidity_mmar(start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''
         try:
-            humidity = mongo.humidityMMAR()
-            if humidity:
-                return jsonify({"status":"found","data": humidity})
+            humidity = mongo.humidityMMAR(start, end)
+            data = list(humidity)
+            if data:
+                return jsonify({"status":"found","data": data})
         except Exception as e:
             print(f"get_humidity error: f{str(e)}")
     # FILE DATA NOT EXIST
@@ -88,9 +91,10 @@ def get_freq_distro(variable,start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''         
         try:
-            freqDis = mongo.frequencyDistro()
-            if freqDis:
-                return jsonify({"status":"found","data": freqDis})
+            freqDis = mongo.frequencyDistro(variable, start, end)
+            data = list(freqDis)
+            if data:
+                return jsonify({"status":"found","data": data})
         except Exception as e:
             print(f"get_frequencyDistribution error: f{str(e)}")
     # FILE DATA NOT EXIST

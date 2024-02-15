@@ -1,5 +1,4 @@
-import {defineStore} from 'pinia'
-import {ref} from 'vue'
+import { defineStore } from 'pinia';
 
 
 export const useAppStore =  defineStore('app', ()=>{
@@ -54,7 +53,7 @@ export const useAppStore =  defineStore('app', ()=>{
         const controller = new AbortController();
         const signal = controller.signal;
         const id = setTimeout(()=>{controller.abort()},60000);
-        const URL = `/api/climo/temperature/${start}/${end}`;
+        const URL = `/api/mmar/temperature/${start}/${end}`;
         
         try {
             const response = await fetch(URL,{ method: 'GET', signal: signal });
@@ -87,7 +86,7 @@ export const useAppStore =  defineStore('app', ()=>{
         const controller = new AbortController();
         const signal = controller.signal;
         const id = setTimeout(()=>{controller.abort()},60000);
-        const URL = `/api/climo/humidity/${start}/${end}`;
+        const URL = `/api/mmar/humidity/${start}/${end}`;
         
         try {
             const response = await fetch(URL,{ method: 'GET', signal: signal });
@@ -115,12 +114,12 @@ export const useAppStore =  defineStore('app', ()=>{
         return []
     }
 
-    const getFreqDistro = async (start,end)=>{
+    const getFreqDistro = async (variable, start, end)=>{
         // FETCH REQUEST WILL TIMEOUT AFTER 20 SECONDS
         const controller = new AbortController();
         const signal = controller.signal;
         const id = setTimeout(()=>{controller.abort()},60000);
-        const URL = `/api/climo/frequency/${start}/${end}`;
+        const URL = `/api/frequency/${variable}/${start}/${end}`;
         
         try {
             const response = await fetch(URL,{ method: 'GET', signal: signal });
