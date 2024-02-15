@@ -379,8 +379,8 @@ const updateScatterCharts = async ()=>{
 
         // Iterate through data variable and transform object to format recognized by highcharts
         data.forEach(row => {
-            s1.push({"x": row.temperature * 1000, "y": parseFloat(row.heatindex.toFixed(2)) });
-            s2.push({ "x": row.humidity * 1000,"y": parseFloat(row.heatindex.toFixed(2)) });
+            s1.push({ "x": parseFloat(row.temperature.toFixed(2)) , "y": parseFloat(row.heatindex.toFixed(2)) });
+            s2.push({ "x": parseFloat(row.humidity.toFixed(2)) ,"y": parseFloat(row.heatindex.toFixed(2)) });
         });
 
         // Add data to Temperature and Heat Index Correlation Analysis chart
