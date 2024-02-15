@@ -22,19 +22,19 @@
                             <!--ToolTip 1-->
                             <v-tooltip text="Min" location="start">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ temperature.min }}</v-chip>
+                                    <v-chip v-bind="props">{{ temperature.min }}</v-chip>
                                 </template>
                             </v-tooltip>
                             <!--ToolTip 2-->
                             <v-tooltip text="Range" location="top">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ temperature.range }}</v-chip>
+                                    <v-chip v-bind="props">{{ temperature.range }}</v-chip>
                                 </template>
                             </v-tooltip>
                             <!--ToolTip 3-->
                             <v-tooltip text="Max" location="end">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ temperature.max }}</v-chip>
+                                    <v-chip v-bind="props">{{ temperature.max }}</v-chip>
                                 </template>
                             </v-tooltip>
                         </v-chip-group>
@@ -55,19 +55,19 @@
                             <!-- ToolTip 1 -->
                             <v-tooltip text="Min" location="start">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ humidity.min }}</v-chip>
+                                    <v-chip v-bind="props">{{ humidity.min }}</v-chip>
                                 </template>
                             </v-tooltip>
                             <!-- ToolTip 2 -->
                             <v-tooltip text="Range" location="top">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ humidity.range }}</v-chip>
+                                    <v-chip v-bind="props">{{ humidity.range }}</v-chip>
                                 </template>
                             </v-tooltip>
                             <!-- ToolTip 3 -->
                             <v-tooltip text="Max" location="end">
                                 <template v-slot:activator="{ props }">
-                                    <v-chip>{{ humidity.max }}</v-chip>
+                                    <v-chip v-bind="props">{{ humidity.max }}</v-chip>
                                 </template>
                             </v-tooltip>
                         </v-chip-group>
