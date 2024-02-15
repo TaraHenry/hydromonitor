@@ -50,11 +50,11 @@ def get_temperature_mmar(start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''
         try:
-            frequency = mongo.numberFrequency()
-            if frequency:
-                return jsonify({"status":"found","data": frequency})
+            temperature = mongo.temperatureMMAR()
+            if temperature:
+                return jsonify({"status":"found","data": temperature})
         except Exception as e:
-            print(f"get_numberFrequency error: f{str(e)}")
+            print(f"get_temperature error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -69,11 +69,11 @@ def get_humidity_mmar(start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''
         try:
-            frequency = mongo.numberFrequency()
-            if frequency:
-                return jsonify({"status":"found","data": frequency})
+            humidity = mongo.humidityMMAR()
+            if humidity:
+                return jsonify({"status":"found","data": humidity})
         except Exception as e:
-            print(f"get_numberFrequency error: f{str(e)}")
+            print(f"get_humidity error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -88,11 +88,11 @@ def get_freq_distro(variable,start,end):
     if request.method == "GET": 
         '''Add your code here to complete this route'''         
         try:
-            frequency = mongo.numberFrequency()
-            if frequency:
-                return jsonify({"status":"found","data": frequency})
+            freqDis = mongo.frequencyDistro()
+            if freqDis:
+                return jsonify({"status":"found","data": freqDis})
         except Exception as e:
-            print(f"get_numberFrequency error: f{str(e)}")
+            print(f"get_frequencyDistribution error: f{str(e)}")
     # FILE DATA NOT EXIST
     return jsonify({"status":"not found","data":[]})
 
@@ -104,12 +104,6 @@ def get_images(filename):
    
     if request.method == "GET":
         '''Add your code here to complete this route'''
-        try:
-            frequency = mongo.numberFrequency()
-            if frequency:
-                return jsonify({"status":"found","data": frequency})
-        except Exception as e:
-            print(f"get_numberFrequency error: f{str(e)}")
         # FILE DOES NOT EXIST
     return jsonify({"status":"file not found"}), 404
 

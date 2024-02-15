@@ -67,6 +67,7 @@ const Mqtt        = useMqttStore();
 const { payload, payloadTopic } = storeToRefs(Mqtt);
 const tempHiChart = ref(null); // Chart object
 const humiChart   = ref(null); // Chart object
+
 const points      = ref(10); // Specify the quantity of points to be shown on the live graph simultaneously.
 const shift       = ref(false); // Delete a point from the left side and append a new point to the right side of the graph.
 
@@ -96,9 +97,9 @@ const CreateCharts = async () => {
     // TEMPERATURE CHART
     tempHiChart.value = Highcharts.chart('container', {
         chart: { zoomType: 'x' },
-        title: { text: 'Air Temperature and Heat Index Analysis', align: 'left' },
+        title: { text: 'Temperature Analysis (Live)', align: 'left' },
         yAxis: {
-            title: { text: 'Air Temperature & Heat Index' , style:{color:'#000000'}},
+            //title: { text: 'Air Temperature & Heat Index' , style:{color:'#000000'}},
             labels: { format: '{value} °C' }
         },
         xAxis: {
@@ -122,13 +123,12 @@ const CreateCharts = async () => {
                 color: Highcharts.getOptions().colors[1]
             } ],
     });
-
     // HUMIDITY CHART
     humiChart.value = Highcharts.chart('container1', {
         chart: { zoomType: 'x' },
-        title: { text: 'Humidity Analysis', align: 'left' },
+        title: { text: 'Humidity Analysis (Live)', align: 'left' },
         yAxis: {
-            title: { text: 'Humidity' , style:{color:'#000000'}},
+            //title: { text: 'Air Temperature & Heat Index' , style:{color:'#000000'}},
             labels: { format: '{value} °C' }
         },
         xAxis: {
@@ -136,13 +136,14 @@ const CreateCharts = async () => {
             title: { text: 'Time', style:{color:'#000000'} },
         },
         tooltip: { shared:true, },
-        series:{
-            name: 'Humidity',
-            type: 'spline',
-            data: [],
-            turboThreshold: 0,
-            color: Highcharts.getOptions().colors[0]
-        }
+        series: [
+            {
+                name: 'Humidity',
+                type: 'spline',
+                data: [],
+                turboThreshold: 0,
+                color: Highcharts.getOptions().colors[1]
+            } ],
     });
 };
 
@@ -154,6 +155,8 @@ watch(payload,(data)=> {
     tempHiChart.value.series[0].addPoint({y:parseFloat(data.temperature.toFixed(2)) ,x: data.timestamp * 1000 },
 true, shift.value);
     tempHiChart.value.series[1].addPoint({y:parseFloat(data.heatindex.toFixed(2)) ,x: data.timestamp * 1000 },
+true, shift.value);
+    humiChart.value.series[0].addPoint({y:parseFloat(data.humidity.toFixed(2)) ,x: data.timestamp * 1000 },
 true, shift.value);
 })
 
